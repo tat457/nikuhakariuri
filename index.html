@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>最安お肉ゲーム</title>
+
+<style>
+body{
+    margin:0;
+    font-family:sans-serif;
+    background:#fff6ea;
+    text-align:center;
+    overflow-x:hidden;
+}
+
+h1{
+    margin:10px 0;
+    color:#b30000;
+}
+
+#topBar{
+    display:flex;
+    justify-content:space-around;
+    align-items:center;
+    background:#ffe0b3;
+    padding:10px;
+    font-weight:bold;
+    font-size:18px;
+    flex-wrap:wrap;
+}
+
+#game{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:16px;
+    padding:20px;
+}
+
+.card{
+    width:220px;
+    background:white;
+    border-radius:16px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.15);
+    overflow:hidden;
+    cursor:pointer;
+    transition:0.2s;
+    position:relative;
+}
+
+.card:hover{
+    transform:scale(1.03);
+}
+
+.meat{
+    height:140px;
+    position:relative;
+    overflow:hidden;
+}
+
+.meat::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+        radial-gradient(circle at 20% 30%, #ffb3b3 0 10px, transparent 11px),
+        radial-gradient(circle at 70% 40%, #ff9d9d 0 12px, transparent 13px),
+        radial-gradient(circle at 40% 70%, #ff8f8f 0 14px, transparent 15px),
+        radial-gradient(circle at 80% 80%, #ffb3b3 0 10px, transparent 11px),
+        linear-gradient(135deg,#ff6666,#ff9999);
+    opacity:0.95;
+}
+
+.tray{
+    position:absolute;
+    left:10px;
+    right:10px;
+    bottom:10px;
+    top:10px;
+    border-radius:12px;
+    border:4px solid white;
+    box-shadow:inset 0 0 8px rgba(255,255,255,0.7);
+}
+
+.info{
+    padding:12px;
+}
+
+.name{
+    font-size:22px;
+    font-weight:bold;
+    margin-bottom:6px;
+}
+
+.price{
+    color:#d60000;
+    font-size:26px;
+    font-weight:bold;
+}
+
+.weight{
+    font-size:20px;
+    margin-top:4px;
+}
+
+.question{
+    font-size:22px;
+    margin-top:10px;
+    font-weight:bold;
+}
+
+#message{
+    min-height:40px;
+    font-size:26px;
+    font-weight:bold;
+    margin-top:10px;
+}
+
+.correct{
+    color:#008000;
+}
+
+.wrong{
+    color:#d00000;
+}
+
+#nextBtn{
+    margin-top:10px;
+    padding:12px 28px;
+    font-size:20px;
+    border:none;
+    border-radius:12px;
+    background:#ff9800;
+    color:white;
+    cursor:pointer;
+    display:none;
+}
+
+#nextBtn:hover{
+    background:#f57c00;
+}
+
+#result{
+    margin-top:10px;
+    font-size:18px;
+    line-height:1.8;
+}
+
+footer{
+    margin:20px;
+    color:#777;
+}
+
+@media(max-width:600px){
+    .card{
+        width:90%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<h1>🥩 最安お肉ゲーム 🥩</h1>
+
+<div id="topBar">
+    <div>スコア: <span id="score">0</span></div>
+    <div>問題: <span id="round">1</span></div>
+    <div>連続正解: <span id="combo">0</span></div>
+</div>
+
+<div class="question">
+    1gあたりで一番安いお肉を選ぼう！
+</div>
+
+<div id="message"></div>
+
+<div id="game"></div>
+
+<div id="result"></div>
+
+<button id="nextBtn">次の問題 ▶</button>
+
+<footer>
+スーパーの買い物感覚で単価計算！
+</footer>
+
+<script>
+const meats = [
+    "牛肉",
+    "豚肉",
+    "鶏肉",
+    "ひき肉",
+    "ステーキ",
+    "ロース",
+    "カルビ",
+    "もも肉",
+    "バラ肉",
+    "ささみ"
+];
+
+let score = 0;
+let combo = 0;
+let round = 1;
+let currentAnswer = null;
+let answered = false;
+
+const game = document.getElementById("game");
+const scoreEl = document.getElementById("score");
+const comboEl = document.getElementById("combo");
+const roundEl = document.getElementById("round");
+const messageEl = document.getElementById("message");
+const resultEl = document.getElementById("result");
+const nextBtn = document.getElementById("nextBtn");
+
+function random(min,max){
+    return Math.floor(Math.random()*(max-min+1))+min;
+}
+
+function createQuestion(){
+
+    answered = false;
+    nextBtn.style.display = "none";
+    messageEl.textContent = "";
+    resultEl.innerHTML = "";
+    game.innerHTML = "";
+
+    const cards = [];
+
+    for(let i=0;i<4;i++){
+
+        const name = meats[random(0, meats.length-1)];
+
+        const weight = random(120, 500);
+
+        // 難易度が上がるほど近い価格に
+        const base = random(1.4, 4);
+
+        const pricePerGram =
+            (Math.random() * 2 + 1.2).toFixed(2);
+
+        const totalPrice =
+            Math.round(weight * pricePerGram);
+
+        cards.push({
+            name,
+            weight,
+            totalPrice,
+            unitPrice: totalPrice / weight
+        });
+    }
+
+    currentAnswer =
+        cards.reduce((a,b)=>
+            a.unitPrice < b.unitPrice ? a : b
+        );
+
+    cards.forEach(card=>{
+
+        const div = document.createElement("div");
+        div.className = "card";
+
+        div.innerHTML = `
+            <div class="meat">
+                <div class="tray"></div>
+            </div>
+
+            <div class="info">
+                <div class="name">${card.name}</div>
+                <div class="price">${card.totalPrice}円</div>
+                <div class="weight">${card.weight}g</div>
+            </div>
+        `;
+
+        div.onclick = ()=>selectCard(card, div, cards);
+
+        game.appendChild(div);
+    });
+}
+
+function selectCard(card, element, cards){
+
+    if(answered) return;
+
+    answered = true;
+
+    const allCards =
+        document.querySelectorAll(".card");
+
+    allCards.forEach(c=>{
+        c.style.pointerEvents = "none";
+    });
+
+    if(card === currentAnswer){
+
+        score += 10;
+        combo++;
+
+        scoreEl.textContent = score;
+        comboEl.textContent = combo;
+
+        messageEl.textContent = "⭕ 正解！";
+        messageEl.className = "correct";
+
+        element.style.border =
+            "6px solid #00b300";
+
+    }else{
+
+        combo = 0;
+        comboEl.textContent = combo;
+
+        messageEl.textContent = "❌ 不正解";
+        messageEl.className = "wrong";
+
+        element.style.border =
+            "6px solid #d00000";
+
+        allCards.forEach(c=>{
+            const name =
+                c.querySelector(".name").textContent;
+
+            const price =
+                parseInt(
+                    c.querySelector(".price")
+                    .textContent
+                );
+
+            const weight =
+                parseInt(
+                    c.querySelector(".weight")
+                    .textContent
+                );
+
+            const unit = price / weight;
+
+            if(Math.abs(
+                unit - currentAnswer.unitPrice
+            ) < 0.01){
+
+                c.style.border =
+                    "6px solid #00b300";
+            }
+        });
+    }
+
+    let html = "<b>1gあたり価格</b><br><br>";
+
+    cards.forEach(card=>{
+
+        html += `
+            ${card.name}
+            :
+            ${(card.unitPrice).toFixed(2)}
+            円/g
+            <br>
+        `;
+    });
+
+    resultEl.innerHTML = html;
+
+    nextBtn.style.display = "inline-block";
+}
+
+nextBtn.onclick = ()=>{
+
+    round++;
+
+    roundEl.textContent = round;
+
+    createQuestion();
+};
+
+createQuestion();
+</script>
+
+</body>
+</html>

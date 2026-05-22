@@ -2,32 +2,51 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>最安お肉ゲーム</title>
 
 <style>
+:root{
+    --bg:#fff6ea;
+    --panel:#ffe0b3;
+    --accent:#b30000;
+    --card-shadow:0 10px 24px rgba(80, 34, 18, 0.15);
+    --success:#00a651;
+    --danger:#d00000;
+}
+
+*{
+    box-sizing:border-box;
+}
+
 body{
     margin:0;
-    font-family:sans-serif;
-    background:#fff6ea;
+    font-family:"Hiragino Sans","Yu Gothic",sans-serif;
+    background:
+        radial-gradient(circle at top, rgba(255,255,255,0.85), transparent 30%),
+        linear-gradient(180deg, #fff8ef 0%, var(--bg) 100%);
     text-align:center;
     overflow-x:hidden;
+    color:#3a2218;
 }
 
 h1{
-    margin:10px 0;
-    color:#b30000;
+    margin:12px 0 8px;
+    color:var(--accent);
+    font-size:clamp(1.8rem, 4vw, 2.4rem);
 }
 
 #topBar{
     display:flex;
     justify-content:space-around;
     align-items:center;
-    background:#ffe0b3;
+    gap:10px;
+    background:var(--panel);
     padding:10px;
     font-weight:bold;
     font-size:18px;
     flex-wrap:wrap;
+    box-shadow:0 4px 12px rgba(80, 34, 18, 0.08);
 }
 
 #game{
@@ -39,52 +58,76 @@ h1{
 }
 
 .card{
-    width:220px;
-    background:white;
-    border-radius:16px;
-    box-shadow:0 4px 10px rgba(0,0,0,0.15);
+    width:min(220px, 92vw);
+    background:#fff;
+    border:4px solid transparent;
+    border-radius:18px;
+    box-shadow:var(--card-shadow);
     overflow:hidden;
     cursor:pointer;
-    transition:0.2s;
+    transition:transform 0.2s ease, box-shadow 0.2s ease;
     position:relative;
 }
 
 .card:hover{
-    transform:scale(1.03);
+    transform:translateY(-4px) scale(1.02);
+    box-shadow:0 14px 28px rgba(80, 34, 18, 0.22);
+}
+
+.card:focus-visible{
+    outline:4px solid #ff9800;
+    outline-offset:4px;
 }
 
 .meat{
-    height:140px;
+    height:152px;
     position:relative;
     overflow:hidden;
+    background:
+        linear-gradient(180deg, #fefefe 0%, #f6eee7 100%);
 }
 
 .meat::before{
     content:"";
     position:absolute;
-    inset:0;
+    inset:12px 10px 8px;
+    border-radius:18px;
     background:
-        radial-gradient(circle at 20% 30%, #ffb3b3 0 10px, transparent 11px),
-        radial-gradient(circle at 70% 40%, #ff9d9d 0 12px, transparent 13px),
-        radial-gradient(circle at 40% 70%, #ff8f8f 0 14px, transparent 15px),
-        radial-gradient(circle at 80% 80%, #ffb3b3 0 10px, transparent 11px),
-        linear-gradient(135deg,#ff6666,#ff9999);
-    opacity:0.95;
+        linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.15)),
+        linear-gradient(180deg, #ececec, #d4d4d4);
+    box-shadow:
+        inset 0 0 0 3px rgba(255,255,255,0.8),
+        inset 0 -6px 12px rgba(0,0,0,0.08);
 }
 
-.tray{
+.meat-image{
     position:absolute;
-    left:10px;
-    right:10px;
-    bottom:10px;
-    top:10px;
-    border-radius:12px;
-    border:4px solid white;
-    box-shadow:inset 0 0 8px rgba(255,255,255,0.7);
+    inset:8px 10px 14px;
+    width:calc(100% - 20px);
+    height:calc(100% - 22px);
+    object-fit:contain;
+    filter:drop-shadow(0 6px 10px rgba(84, 18, 18, 0.2));
+    user-select:none;
+    -webkit-user-drag:none;
+    pointer-events:none;
+}
+
+.label-chip{
+    position:absolute;
+    left:14px;
+    top:12px;
+    padding:4px 10px;
+    border-radius:999px;
+    background:rgba(255,255,255,0.88);
+    color:#8b0000;
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:0.04em;
+    box-shadow:0 3px 8px rgba(0,0,0,0.08);
 }
 
 .info{
-    padding:12px;
+    padding:12px 14px 16px;
 }
 
 .name{
@@ -94,7 +137,7 @@ h1{
 }
 
 .price{
-    color:#d60000;
+    color:var(--danger);
     font-size:26px;
     font-weight:bold;
 }
@@ -106,7 +149,7 @@ h1{
 
 .question{
     font-size:22px;
-    margin-top:10px;
+    margin-top:14px;
     font-weight:bold;
 }
 
@@ -114,7 +157,8 @@ h1{
     min-height:40px;
     font-size:26px;
     font-weight:bold;
-    margin-top:10px;
+    margin-top:12px;
+    padding:0 12px;
 }
 
 .correct{
@@ -122,7 +166,7 @@ h1{
 }
 
 .wrong{
-    color:#d00000;
+    color:var(--danger);
 }
 
 #nextBtn{
@@ -132,9 +176,10 @@ h1{
     border:none;
     border-radius:12px;
     background:#ff9800;
-    color:white;
+    color:#fff;
     cursor:pointer;
     display:none;
+    transition:background-color 0.2s ease;
 }
 
 #nextBtn:hover{
@@ -145,6 +190,16 @@ h1{
     margin-top:10px;
     font-size:18px;
     line-height:1.8;
+    padding:0 16px 12px;
+}
+
+.result-title{
+    font-weight:700;
+    margin-bottom:8px;
+}
+
+.result-line{
+    display:block;
 }
 
 footer{
@@ -152,9 +207,26 @@ footer{
     color:#777;
 }
 
-@media(max-width:600px){
-    .card{
-        width:90%;
+@media (max-width:600px){
+    #topBar{
+        font-size:16px;
+    }
+
+    .question{
+        font-size:20px;
+        padding:0 14px;
+    }
+
+    .name{
+        font-size:20px;
+    }
+
+    .price{
+        font-size:24px;
+    }
+
+    .weight{
+        font-size:18px;
     }
 }
 </style>
@@ -174,19 +246,21 @@ footer{
     1gあたりで一番安いお肉を選ぼう！
 </div>
 
-<div id="message"></div>
+<div id="message" aria-live="polite"></div>
 
 <div id="game"></div>
 
-<div id="result"></div>
+<div id="result" aria-live="polite"></div>
 
-<button id="nextBtn">次の問題 ▶</button>
+<button id="nextBtn" type="button">次の問題 ▶</button>
 
 <footer>
 スーパーの買い物感覚で単価計算！
 </footer>
 
 <script>
+"use strict";
+
 const meats = [
     "牛肉",
     "豚肉",
@@ -199,6 +273,79 @@ const meats = [
     "バラ肉",
     "ささみ"
 ];
+
+const meatStyles = {
+    "牛肉": {
+        label: "BEEF",
+        gradients: ["#6b0f1a", "#b91c2d", "#7a1020"],
+        fat: "#f7d6d0",
+        garnish: "#6d8a3b",
+        layout: "beef"
+    },
+    "豚肉": {
+        label: "PORK",
+        gradients: ["#f5a4aa", "#f08793", "#de6d79"],
+        fat: "#fff0f1",
+        garnish: "#9ab056",
+        layout: "loin"
+    },
+    "鶏肉": {
+        label: "CHICKEN",
+        gradients: ["#f7c9a5", "#efb286", "#de9766"],
+        fat: "#fff2d6",
+        garnish: "#6e9152",
+        layout: "fillet"
+    },
+    "ひき肉": {
+        label: "MINCE",
+        gradients: ["#bb3947", "#d85763", "#9f2432"],
+        fat: "#f9d8df",
+        garnish: "#7a964f",
+        layout: "mince"
+    },
+    "ステーキ": {
+        label: "STEAK",
+        gradients: ["#7d0f18", "#c01928", "#5e0912"],
+        fat: "#f7ddd2",
+        garnish: "#7d8f33",
+        layout: "steak"
+    },
+    "ロース": {
+        label: "LOIN",
+        gradients: ["#ee9aa5", "#f4b4be", "#db808b"],
+        fat: "#fff4f4",
+        garnish: "#8ea850",
+        layout: "loin"
+    },
+    "カルビ": {
+        label: "KARUBI",
+        gradients: ["#90202c", "#ce404f", "#70131d"],
+        fat: "#fbe5dc",
+        garnish: "#7e9445",
+        layout: "karubi"
+    },
+    "もも肉": {
+        label: "THIGH",
+        gradients: ["#cc6b75", "#e08a93", "#b94f5b"],
+        fat: "#ffe6e8",
+        garnish: "#87994b",
+        layout: "thigh"
+    },
+    "バラ肉": {
+        label: "BELLY",
+        gradients: ["#e38f98", "#f7bbc2", "#d86e7b"],
+        fat: "#fff7f4",
+        garnish: "#8fa851",
+        layout: "belly"
+    },
+    "ささみ": {
+        label: "SASAMI",
+        gradients: ["#f5d6c0", "#f3c4a9", "#e2ac8c"],
+        fat: "#fff7ea",
+        garnish: "#91a85d",
+        layout: "sasami"
+    }
+};
 
 let score = 0;
 let combo = 0;
@@ -214,34 +361,138 @@ const messageEl = document.getElementById("message");
 const resultEl = document.getElementById("result");
 const nextBtn = document.getElementById("nextBtn");
 
-function random(min,max){
-    return Math.floor(Math.random()*(max-min+1))+min;
+function randomInt(min, max){
+    const safeMin = Math.ceil(min);
+    const safeMax = Math.floor(max);
+    return Math.floor(Math.random() * (safeMax - safeMin + 1)) + safeMin;
+}
+
+function escapeXml(value){
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&apos;");
+}
+
+function svgDataUri(svg){
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
+
+function getMeatIllustration(name){
+    const style = meatStyles[name] || meatStyles["牛肉"];
+    const [c1, c2, c3] = style.gradients;
+    const label = escapeXml(style.label);
+    const garnish = style.garnish;
+    const fat = style.fat;
+
+    const layouts = {
+        beef: `
+            <path d="M50 92 C26 88, 20 55, 39 38 C56 23, 89 22, 114 38 C132 50, 145 74, 134 91 C120 111, 78 113, 50 92 Z" fill="url(#meatGrad)"/>
+            <path d="M41 54 C58 44, 83 44, 102 55" stroke="${fat}" stroke-width="8" stroke-linecap="round" opacity="0.95"/>
+            <path d="M56 77 C71 69, 96 70, 116 81" stroke="${fat}" stroke-width="7" stroke-linecap="round" opacity="0.9"/>
+            <ellipse cx="49" cy="42" rx="10" ry="6" fill="rgba(255,255,255,0.18)"/>
+        `,
+        loin: `
+            <path d="M35 82 C22 72, 22 48, 39 39 C55 31, 101 30, 123 38 C139 43, 146 64, 136 78 C126 91, 52 97, 35 82 Z" fill="url(#meatGrad)"/>
+            <path d="M55 43 C70 38, 93 38, 111 43 C123 47, 129 55, 127 67 C124 81, 104 88, 75 89 C60 89, 49 86, 42 81" fill="none" stroke="${fat}" stroke-width="10" stroke-linecap="round"/>
+            <ellipse cx="48" cy="55" rx="9" ry="7" fill="${fat}" opacity="0.85"/>
+        `,
+        fillet: `
+            <path d="M43 86 C25 80, 20 56, 31 42 C42 29, 74 24, 103 30 C124 34, 141 49, 138 68 C135 88, 110 99, 76 99 C61 99, 49 95, 43 86 Z" fill="url(#meatGrad)"/>
+            <path d="M49 60 C69 53, 93 53, 119 63" stroke="${fat}" stroke-width="9" stroke-linecap="round" opacity="0.8"/>
+            <path d="M42 77 C55 82, 92 85, 122 77" stroke="rgba(150,90,50,0.18)" stroke-width="10" stroke-linecap="round"/>
+        `,
+        mince: `
+            <g>
+                <circle cx="52" cy="54" r="16" fill="url(#meatGrad)"/>
+                <circle cx="77" cy="48" r="17" fill="url(#meatGrad2)"/>
+                <circle cx="100" cy="56" r="16" fill="url(#meatGrad)"/>
+                <circle cx="65" cy="75" r="18" fill="url(#meatGrad2)"/>
+                <circle cx="92" cy="79" r="19" fill="url(#meatGrad)"/>
+            </g>
+            <path d="M47 48 C52 42, 58 42, 64 47" stroke="${fat}" stroke-width="4" stroke-linecap="round" opacity="0.75"/>
+            <path d="M84 66 C91 60, 101 60, 108 67" stroke="${fat}" stroke-width="4" stroke-linecap="round" opacity="0.75"/>
+        `,
+        steak: `
+            <path d="M43 88 C25 75, 22 48, 42 36 C58 27, 93 27, 118 35 C134 40, 144 52, 141 68 C136 95, 69 108, 43 88 Z" fill="url(#meatGrad)"/>
+            <path d="M67 43 C86 38, 114 46, 121 62 C127 75, 112 90, 88 93 C66 95, 45 81, 46 64 C47 55, 54 47, 67 43 Z" fill="none" stroke="${fat}" stroke-width="9" stroke-linecap="round" opacity="0.95"/>
+            <circle cx="101" cy="61" r="7" fill="rgba(255,255,255,0.18)"/>
+        `,
+        karubi: `
+            <path d="M28 44 C41 34, 119 34, 132 44 C142 52, 142 70, 131 79 C118 89, 42 89, 29 79 C18 70, 18 54, 28 44 Z" fill="url(#meatGrad)"/>
+            <path d="M40 49 C55 58, 83 59, 121 48" stroke="${fat}" stroke-width="9" stroke-linecap="round"/>
+            <path d="M35 65 C52 74, 82 75, 125 65" stroke="${fat}" stroke-width="9" stroke-linecap="round"/>
+            <path d="M38 81 C58 89, 86 89, 120 80" stroke="${fat}" stroke-width="8" stroke-linecap="round"/>
+        `,
+        thigh: `
+            <path d="M48 89 C30 77, 26 49, 45 35 C59 25, 90 23, 111 33 C132 43, 142 72, 126 89 C111 104, 69 104, 48 89 Z" fill="url(#meatGrad)"/>
+            <path d="M53 50 C71 45, 95 49, 114 60" stroke="${fat}" stroke-width="8" stroke-linecap="round" opacity="0.85"/>
+            <path d="M61 75 C81 70, 100 73, 113 82" stroke="${fat}" stroke-width="6" stroke-linecap="round" opacity="0.85"/>
+        `,
+        belly: `
+            <path d="M27 44 C38 32, 120 32, 132 44 C143 56, 142 81, 129 90 C116 99, 42 99, 29 90 C16 81, 15 56, 27 44 Z" fill="url(#meatGrad)"/>
+            <path d="M28 50 C45 61, 73 63, 133 50" stroke="${fat}" stroke-width="10" stroke-linecap="round"/>
+            <path d="M24 68 C46 80, 79 82, 136 67" stroke="${fat}" stroke-width="10" stroke-linecap="round"/>
+            <path d="M28 85 C48 95, 83 97, 132 84" stroke="${fat}" stroke-width="9" stroke-linecap="round"/>
+        `,
+        sasami: `
+            <path d="M38 86 C22 74, 22 52, 38 40 C48 31, 67 27, 83 28 C100 29, 116 35, 124 46 C136 62, 132 87, 111 96 C88 106, 54 99, 38 86 Z" fill="url(#meatGrad)"/>
+            <path d="M48 77 C61 64, 76 51, 101 40" stroke="${fat}" stroke-width="7" stroke-linecap="round" opacity="0.9"/>
+            <ellipse cx="61" cy="48" rx="9" ry="5" fill="rgba(255,255,255,0.16)"/>
+        `
+    };
+
+    const shapeMarkup = layouts[style.layout] || layouts.beef;
+
+    return svgDataUri(`
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 110" role="img" aria-label="${escapeXml(name)}のイラスト">
+            <defs>
+                <linearGradient id="meatGrad" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="${c1}"/>
+                    <stop offset="55%" stop-color="${c2}"/>
+                    <stop offset="100%" stop-color="${c3}"/>
+                </linearGradient>
+                <linearGradient id="meatGrad2" x1="0" y1="1" x2="1" y2="0">
+                    <stop offset="0%" stop-color="${c3}"/>
+                    <stop offset="60%" stop-color="${c2}"/>
+                    <stop offset="100%" stop-color="${c1}"/>
+                </linearGradient>
+                <radialGradient id="shine" cx="35%" cy="25%" r="70%">
+                    <stop offset="0%" stop-color="rgba(255,255,255,0.55)"/>
+                    <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+                </radialGradient>
+            </defs>
+            <rect x="11" y="11" width="138" height="88" rx="18" fill="rgba(255,255,255,0.12)"/>
+            ${shapeMarkup}
+            <ellipse cx="80" cy="93" rx="48" ry="11" fill="rgba(60,10,10,0.16)"/>
+            <ellipse cx="76" cy="43" rx="54" ry="34" fill="url(#shine)"/>
+            <g opacity="0.95">
+                <path d="M24 91 Q31 78 41 84" stroke="${garnish}" stroke-width="4" stroke-linecap="round" fill="none"/>
+                <path d="M38 92 Q45 76 55 83" stroke="${garnish}" stroke-width="4" stroke-linecap="round" fill="none"/>
+                <path d="M108 92 Q116 77 126 83" stroke="${garnish}" stroke-width="4" stroke-linecap="round" fill="none"/>
+            </g>
+            <text x="80" y="103" text-anchor="middle" font-size="11" font-weight="700" fill="rgba(90,35,20,0.7)" font-family="Arial, sans-serif">${label}</text>
+        </svg>
+    `);
 }
 
 function createQuestion(){
-
     answered = false;
     nextBtn.style.display = "none";
     messageEl.textContent = "";
-    resultEl.innerHTML = "";
-    game.innerHTML = "";
+    messageEl.className = "";
+    resultEl.replaceChildren();
+    game.replaceChildren();
 
     const cards = [];
 
-    for(let i=0;i<4;i++){
-
-        const name = meats[random(0, meats.length-1)];
-
-        const weight = random(120, 500);
-
-        // 難易度が上がるほど近い価格に
-        const base = random(1.4, 4);
-
-        const pricePerGram =
-            (Math.random() * 2 + 1.2).toFixed(2);
-
-        const totalPrice =
-            Math.round(weight * pricePerGram);
+    for(let i = 0; i < 4; i++){
+        const name = meats[randomInt(0, meats.length - 1)];
+        const weight = randomInt(120, 500);
+        const pricePerGram = Number((Math.random() * 2 + 1.2).toFixed(2));
+        const totalPrice = Math.round(weight * pricePerGram);
 
         cards.push({
             name,
@@ -251,126 +502,121 @@ function createQuestion(){
         });
     }
 
-    currentAnswer =
-        cards.reduce((a,b)=>
-            a.unitPrice < b.unitPrice ? a : b
-        );
+    currentAnswer = cards.reduce((a, b) => (a.unitPrice < b.unitPrice ? a : b));
 
-    cards.forEach(card=>{
+    cards.forEach((card) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "card";
+        button.setAttribute("aria-label", `${card.name} ${card.totalPrice}円 ${card.weight}グラム`);
 
-        const div = document.createElement("div");
-        div.className = "card";
+        const meatArea = document.createElement("div");
+        meatArea.className = "meat";
 
-        div.innerHTML = `
-            <div class="meat">
-                <div class="tray"></div>
-            </div>
+        const chip = document.createElement("div");
+        chip.className = "label-chip";
+        chip.textContent = meatStyles[card.name]?.label || "MEAT";
 
-            <div class="info">
-                <div class="name">${card.name}</div>
-                <div class="price">${card.totalPrice}円</div>
-                <div class="weight">${card.weight}g</div>
-            </div>
-        `;
+        const image = document.createElement("img");
+        image.className = "meat-image";
+        image.src = getMeatIllustration(card.name);
+        image.alt = `${card.name}のイラスト`;
+        image.loading = "eager";
+        image.decoding = "async";
 
-        div.onclick = ()=>selectCard(card, div, cards);
+        const info = document.createElement("div");
+        info.className = "info";
 
-        game.appendChild(div);
+        const nameEl = document.createElement("div");
+        nameEl.className = "name";
+        nameEl.textContent = card.name;
+
+        const priceEl = document.createElement("div");
+        priceEl.className = "price";
+        priceEl.textContent = `${card.totalPrice}円`;
+
+        const weightEl = document.createElement("div");
+        weightEl.className = "weight";
+        weightEl.textContent = `${card.weight}g`;
+
+        info.append(nameEl, priceEl, weightEl);
+        meatArea.append(chip, image);
+        button.append(meatArea, info);
+        button.addEventListener("click", () => selectCard(card, button, cards));
+
+        game.appendChild(button);
     });
 }
 
-function selectCard(card, element, cards){
+function renderResult(cards){
+    const title = document.createElement("div");
+    title.className = "result-title";
+    title.textContent = "1gあたり価格";
 
-    if(answered) return;
+    const fragment = document.createDocumentFragment();
+    fragment.appendChild(title);
+
+    cards.forEach((card) => {
+        const line = document.createElement("span");
+        line.className = "result-line";
+        line.textContent = `${card.name}: ${card.unitPrice.toFixed(2)}円/g`;
+        fragment.appendChild(line);
+    });
+
+    resultEl.replaceChildren(fragment);
+}
+
+function selectCard(card, element, cards){
+    if(answered){
+        return;
+    }
 
     answered = true;
 
-    const allCards =
-        document.querySelectorAll(".card");
-
-    allCards.forEach(c=>{
-        c.style.pointerEvents = "none";
+    const allCards = game.querySelectorAll(".card");
+    allCards.forEach((cardButton) => {
+        cardButton.style.pointerEvents = "none";
     });
 
     if(card === currentAnswer){
-
         score += 10;
         combo++;
 
-        scoreEl.textContent = score;
-        comboEl.textContent = combo;
+        scoreEl.textContent = String(score);
+        comboEl.textContent = String(combo);
 
         messageEl.textContent = "⭕ 正解！";
         messageEl.className = "correct";
-
-        element.style.border =
-            "6px solid #00b300";
-
+        element.style.borderColor = varCss("--success", "#00a651");
     }else{
-
         combo = 0;
-        comboEl.textContent = combo;
+        comboEl.textContent = String(combo);
 
         messageEl.textContent = "❌ 不正解";
         messageEl.className = "wrong";
+        element.style.borderColor = varCss("--danger", "#d00000");
 
-        element.style.border =
-            "6px solid #d00000";
-
-        allCards.forEach(c=>{
-            const name =
-                c.querySelector(".name").textContent;
-
-            const price =
-                parseInt(
-                    c.querySelector(".price")
-                    .textContent
-                );
-
-            const weight =
-                parseInt(
-                    c.querySelector(".weight")
-                    .textContent
-                );
-
-            const unit = price / weight;
-
-            if(Math.abs(
-                unit - currentAnswer.unitPrice
-            ) < 0.01){
-
-                c.style.border =
-                    "6px solid #00b300";
+        allCards.forEach((cardButton, index) => {
+            if(cards[index] === currentAnswer){
+                cardButton.style.borderColor = varCss("--success", "#00a651");
             }
         });
     }
 
-    let html = "<b>1gあたり価格</b><br><br>";
-
-    cards.forEach(card=>{
-
-        html += `
-            ${card.name}
-            :
-            ${(card.unitPrice).toFixed(2)}
-            円/g
-            <br>
-        `;
-    });
-
-    resultEl.innerHTML = html;
-
+    renderResult(cards);
     nextBtn.style.display = "inline-block";
 }
 
-nextBtn.onclick = ()=>{
+function varCss(name, fallback){
+    const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return value || fallback;
+}
 
+nextBtn.addEventListener("click", () => {
     round++;
-
-    roundEl.textContent = round;
-
+    roundEl.textContent = String(round);
     createQuestion();
-};
+});
 
 createQuestion();
 </script>
